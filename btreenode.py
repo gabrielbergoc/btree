@@ -29,7 +29,6 @@ class BTreeNode:
     def children(self):
         return self._children
     
-    @property
     def is_leaf(self):
         return self._is_leaf
     
@@ -37,8 +36,11 @@ class BTreeNode:
         if value is None:
             raise ValueError("Parameter 'value' must not be None")
         
-    def traverse(self, f: function):
-        for i in range(len(self.values)):
-            self.children[i].traverse(f)
-            f(self.values[i])
-        self.children[len(self.children) - 1].traverse(f)
+    def in_order(self, f: function):
+        for i, value in (enumerate(self.values)):
+            if not self.is_leaf():
+                self.children[i].in_order(f)
+            f(value)
+
+        if not self.is_leaf():
+            self.children[-1].in_order(f)
