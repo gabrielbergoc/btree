@@ -107,7 +107,7 @@ class BTree:
 
         # se keys[i-1] < key < keys[i] (ou key > max(keys)) e 'node' for folha,
         # a chave não existe
-        if node.is_leaf():
+        if node.is_leaf:
             return None
 
         # em último caso, procurar pela chave no filho entre as chaves keys[i-1]
@@ -149,7 +149,7 @@ class BTree:
         while i >= 0 and node.get_key(i) > key:
             i -= 1
 
-        if node.is_leaf():
+        if node.is_leaf:
             node.insert_key(key, i + 1)
             return
 
@@ -171,17 +171,14 @@ class BTree:
             i (int): The index at which is found the child to split.
         """
         child = node.get_child(i)
-        new = BTreeNode(is_leaf=child.is_leaf())
-        
-        for j in range(self.min_keys, self.max_keys + 1):
-            new.insert_key(child.get_key(j))
-            
-        if not child.is_leaf():
-            for j in range(self.min_children, self.max_children + 1):
-                new.insert_child(child.get_child(j))
-                
-        child.insert_child(new, i + 1)
-        child.insert_key(node.get_key(self._t - 1), i)
+        new = BTreeNode(is_leaf=child.is_leaf)                
+        node.insert_child(new, i + 1)
+        node.insert_key(child.get_key(self._t - 1), i)
+        new._keys = child._keys[self._t:]
+        child._keys = child._keys[:self._t - 1]
+        if not child.is_leaf:
+            new._children = child._children[self._t:]
+            child._children = child._children[:self._t - 1]
 
     def print(self, sep: str = " ") -> None:
         """Prints tree keys in order with given separator.

@@ -10,9 +10,8 @@ class BTreeNode:
             *args (Any, optional): Initial keys.
             is_leaf (bool, optional): Flag to indicate if node is a leaf. Defaults to False.
         """
-        self._keys: list[Any] = list(args)
-        self._children: list[BTreeNode] = []
-        self._is_leaf: bool = is_leaf
+        self.__keys: list[Any] = list(args)
+        self.__children: list[BTreeNode] = []
 
     @property
     def keys(self) -> list[Any]:
@@ -21,7 +20,7 @@ class BTreeNode:
         Returns:
             list[Any]: A shallow copy of the node's keys list.
         """
-        return self._keys[:]
+        return self.__keys[:]
 
     @property
     def children(self) -> list[BTreeNode]:
@@ -30,7 +29,24 @@ class BTreeNode:
         Returns:
             list[BTreeNode]: A shallow copy of the node's children list.
         """
-        return self._children[:]
+        return self.__children[:]
+    
+    @property
+    def _keys(self) -> list[Any]:
+        return self.__keys
+    
+    # protected getters and setters to facilitate some operations in BTree class
+    @_keys.setter
+    def _keys(self, keys: list[Any]) -> None:
+        self.__keys = keys
+        
+    @property
+    def _children(self) -> list[BTreeNode]:
+        return self.__children
+    
+    @_children.setter
+    def _children(self, children: list[BTreeNode]) -> None:
+        self.__children = children
 
     @property
     def n_keys(self) -> int:
@@ -39,7 +55,7 @@ class BTreeNode:
         Returns:
             int: Current number of keys in this node.
         """
-        return len(self._keys)
+        return len(self.__keys)
 
     @property
     def n_children(self) -> int:
@@ -48,10 +64,11 @@ class BTreeNode:
         Returns:
             int: Current number of children in this node.
         """
-        return len(self._children)
+        return len(self.__children)
 
+    @property
     def is_leaf(self) -> bool:
-        return self._is_leaf
+        return self.n_children == 0
     
     def get_key(self, i: int) -> Any:
         """Get key at index 'i'.
@@ -65,7 +82,7 @@ class BTreeNode:
         Raises: 
             IndexError: If index is out of range.
         """
-        return self._keys[i]
+        return self.__keys[i]
     
     def get_child(self, i: int) -> BTreeNode:
         """Get child at index 'i'.
@@ -79,7 +96,7 @@ class BTreeNode:
         Raises: 
             IndexError: If index is out of range.
         """
-        return self._children[i]
+        return self.__children[i]
     
     def insert_key(self, key: Any, i: int | None = None) -> None:
         """Inserts given key at index i.
@@ -96,9 +113,9 @@ class BTreeNode:
             raise TypeError("'key' parameter must not be None")
         
         if i is not None:
-            self._keys.insert(i, key)
+            self.__keys.insert(i, key)
         else:
-            self._keys.append(key)
+            self.__keys.append(key)
         
     def insert_child(self, child: BTreeNode, i: int | None = None) -> None:
         """Inserts given child at index i.
@@ -115,9 +132,9 @@ class BTreeNode:
             raise TypeError("'child' parameter must not be None")
         
         if i is not None:
-            self._children.insert(i, child)
+            self.__children.insert(i, child)
         else:
-            self._children.append(child)
+            self.__children.append(child)
 
     def in_order(self, f: Callable, *args: tuple[Any], **kwargs: dict) -> None:
         """Traverses the tree in order, applying f to the keys.
@@ -127,16 +144,16 @@ class BTreeNode:
             *args: unnamed arguments passed to f on each call.
             **kwargs: keyword arguments passed to f on each call.
         """
-        for i, value in enumerate(self._keys):
-            if not self.is_leaf():
-                self._children[i].in_order(f, *args, **kwargs)
+        for i, value in enumerate(self.__keys):
+            if not self.is_leaf:
+                self.__children[i].in_order(f, *args, **kwargs)
             f(value, *args, **kwargs)
 
-        if not self.is_leaf():
-            self._children[-1].in_order(f, *args, **kwargs)
+        if not self.is_leaf:
+            self.__children[-1].in_order(f, *args, **kwargs)
             
     def __str__(self):
-        return f"{{ keys: {self._keys}, children: {self._children}, is_leaf: {self._is_leaf} }}"
+        return f"{{ keys: {self.__keys}, children: {self.__children}, is_leaf: {self._is_leaf} }}"
 
     def __repr__(self) -> str:
         return self.__str__()
