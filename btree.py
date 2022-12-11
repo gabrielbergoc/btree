@@ -125,18 +125,16 @@ class BTree:
             self._root = BTreeNode(key, is_leaf=True)
             return
 
-        root = self._root
-
-        if self.is_full(root):
-            temp = BTreeNode()
-            self._root = temp
-            temp.insert_child(root)
+        if self.is_full(self._root):
+            new_root = BTreeNode()
+            new_root.insert_child(self._root)
+            self._root = new_root
             
-            self._split_child(temp, 0)
-            self._insert_non_full(temp, key)
+            self._split_child(new_root, 0)
+            self._insert_non_full(new_root, key)
             return
 
-        self._insert_non_full(root, key)
+        self._insert_non_full(self._root, key)
 
     def _insert_non_full(self, node: BTreeNode, key: Any) -> None:
         """Helper method to insert a key in a non-full node.
@@ -178,7 +176,7 @@ class BTree:
         child._keys = child._keys[:self._t - 1]
         if not child.is_leaf:
             new._children = child._children[self._t:]
-            child._children = child._children[:self._t - 1]
+            child._children = child._children[:self._t]
 
     def print(self, sep: str = " ") -> None:
         """Prints tree keys in order with given separator.
