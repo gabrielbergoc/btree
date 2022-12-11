@@ -1,7 +1,8 @@
 import pytest
 import re
+from btree import BTree
 
-from btreenode import BTree, BTreeNode
+from btreenode import BTreeNode
 
 # examples:
 #
@@ -124,29 +125,30 @@ class TestBTree:
             assert re.search(f" {str(input_value)} ", expected_out) is None
     
     def test_insert(self):
-        tree = BTree(3)
+        tree = BTree(2)
         
-        elements = [8, 9, 10, 11, 15, 20, 17]
+        elements = [8, 9, 10, 11, 15, 16, 17, 18, 20, 23]
         
         for element in elements:
             tree.insert(element)
             
         # now this tree should be like this:
         #
-        #       11
-        #     /    \
-        #   9       17
-        #  / \     /  \
-        # 8  10   15  20
+        #          11
+        #      /        \
+        #     9       16  18
+        #   /  \    /   |    \
+        #  8   10  15  17  20 23
         #
         
-        assert tree.root.keys[0] == 8
+        assert tree.root.keys[0] == 11
         
         lchild = tree.root.children[0]
         rchild = tree.root.children[1]
         
         assert lchild.keys[0] == 9
-        assert rchild.keys[0] == 17
+        assert rchild.keys[0] == 16
+        assert rchild.keys[1] == 18
         
         llchild = lchild.children[0]
         lrchild = lchild.children[1]
@@ -155,10 +157,12 @@ class TestBTree:
         assert lrchild.keys[0] == 10
         
         rlchild = rchild.children[0]
-        rrchild = rchild.children[1]
+        rmchild = rchild.children[1]
+        rrchild = rchild.children[2]
         
         assert rlchild.keys[0] == 15
         assert rrchild.keys[0] == 20
+        assert rrchild.keys[1] == 23
         
         # important flags!!!
         assert tree.root.is_leaf() == False
@@ -167,4 +171,5 @@ class TestBTree:
         assert llchild.is_leaf() == True
         assert lrchild.is_leaf() == True
         assert rlchild.is_leaf() == True
+        assert rmchild.is_leaf() == True
         assert rrchild.is_leaf() == True
