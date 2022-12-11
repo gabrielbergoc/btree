@@ -1,7 +1,0 @@
-from typing import Any, Sequence
-
-
-def middle(sequence: Sequence) -> Any:
-    """Returns the element in the middle of the given sequence."""
-    l = len(sequence)
-    return sequence[l // 2]

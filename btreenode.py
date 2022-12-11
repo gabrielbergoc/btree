@@ -136,7 +136,7 @@ class BTreeNode:
         else:
             self.__children.append(child)
 
-    def in_order(self, f: Callable, *args: tuple[Any], **kwargs: dict) -> None:
+    def in_order(self, f: Callable, *args: tuple[Any], **kwargs: Any) -> None:
         """Traverses the tree in order, applying f to the keys.
 
         Args:

@@ -31,7 +31,7 @@ class BTree:
         return self._t
 
     @property
-    def root(self) -> BTreeNode:
+    def root(self) -> BTreeNode | None:
         return self._root
 
     @property
@@ -41,7 +41,7 @@ class BTree:
     @property
     def max_keys(self) -> int:
         return 2 * self.t - 1
-    
+
     @property
     def min_children(self) -> int:
         return self._t
@@ -74,6 +74,8 @@ class BTree:
             search key and the index at which it is found in the node's key
             list, or None if the key isn't found.
         """
+        if self._root is None:
+            return None
         return self._search(key, self._root)
 
     def _search(self, key: Any, node: BTreeNode) -> tuple[BTreeNode, int] | None:
@@ -125,13 +127,14 @@ class BTree:
             self._root = BTreeNode(key, is_leaf=True)
             return
 
+        # se raiz estiver cheia, realizar split preventivo
         if self.is_full(self._root):
             new_root = BTreeNode()
             new_root.insert_child(self._root)
             self._root = new_root
-            
-            self._split_child(new_root, 0)
-            self._insert_non_full(new_root, key)
+
+            self._split_child(new_root, 0)          # split da raiz antiga
+            self._insert_non_full(new_root, key)    # insere nova chave
             return
 
         self._insert_non_full(self._root, key)
@@ -143,22 +146,29 @@ class BTree:
             node (BTreeNode): Node in which to insert new key.
             key (Any): The new key.
         """
-        i = node.n_keys - 1
-        while i >= 0 and node.get_key(i) > key:
+        # do fim para o começo, procurar o índice adequado de inserção da nova
+        # chave
+        i = node.n_keys
+        while i >= 0 and node.get_key(i - 1) > key:
             i -= 1
 
+        # base da recursão: inserir nova chave na folha, no índice adequado
         if node.is_leaf:
-            node.insert_key(key, i + 1)
+            node.insert_key(key, i)
             return
 
-        i += 1
+        # se o nó atual não for folha, verificar se o filho onde será inserida
+        # a nova chave está cheio. se estiver, fazer split do filho
         if self.is_full(node.get_child(i)):
             self._split_child(node, i)
+            
+            # corrigir índice de inserção
             if node.get_key(i) < key:
                 i += 1
-                
+
+        # inserir recursivamente nova chave no filho correto
         self._insert_non_full(node.get_child(i), key)
-        
+
     def _split_child(self, node: BTreeNode, i: int) -> None:
         """Split given node's i-th child and move its middle value up to given
         node.
@@ -168,21 +178,26 @@ class BTree:
             receive the child's middle value.
             i (int): The index at which is found the child to split.
         """
-        child = node.get_child(i)
-        new = BTreeNode(is_leaf=child.is_leaf)                
-        node.insert_child(new, i + 1)
-        node.insert_key(child.get_key(self._t - 1), i)
-        new._keys = child._keys[self._t:]
-        child._keys = child._keys[:self._t - 1]
+        child = node.get_child(i)                       # nó que será dividido
+        new_child = BTreeNode(is_leaf=child.is_leaf)    # novo nó resultado da divisão
+        node.insert_child(new_child, i + 1)             # inserir novo nó à direita do original
+        node.insert_key(child.get_key(self._t - 1), i)  # passar a chave mediana um nível acima
+        new_child._keys = child._keys[self._t:]         # transferir chaves maiores para o novo nó
+        child._keys = child._keys[:self._t - 1]         # manter as chaves menores no original
+        
         if not child.is_leaf:
-            new._children = child._children[self._t:]
-            child._children = child._children[:self._t]
+            new_child._children = child._children[self._t:]     # transferir filhos maiores para o novo nó
+            child._children = child._children[:self._t]         # manter filhos menores no original
 
-    def print(self, sep: str = " ") -> None:
+    def print_inorder(self, sep: str = " ") -> None:
         """Prints tree keys in order with given separator.
 
         Args:
             sep (str, optional): Inserted after each key. Defaults to " ".
         """
+        if self._root is None:
+            print(None)
+            return
+
         self._root.in_order(print, end=sep)
         print()

@@ -4,22 +4,6 @@ from btree import BTree
 
 from btreenode import BTreeNode
 
-# examples:
-#
-# def foo():
-#     return 1
-#
-# def test_foo():
-#     assert foo() == 1
-#
-#
-# def bar():
-#     raise SystemExit[1]
-#
-# def test_bar():
-#     with pytest.raises(SystemExit):
-#         bar()
-#
 
 class TestBTree:
 
@@ -48,8 +32,9 @@ class TestBTree:
         (22.999999, None),
     ])
     def test_search(self, capsys, input_value, expected):
-        # ----------------------------------------------------------------------
-        # -------- ARRANGE --------- #
+        # -------------------------------------------------------------------- #
+        # --------------------------- ARRANGE -------------------------------- #
+        # -------------------------------------------------------------------- #
 
         # mount tree manually to not depend on insert method
         #
@@ -59,7 +44,7 @@ class TestBTree:
         #   /  \    /   |    \
         #  8   10  15  17  20 23
         #
-        
+
         tree = BTree(2, 11)
 
         leftChild = BTreeNode()
@@ -88,7 +73,7 @@ class TestBTree:
         middleChild = BTreeNode()
         middleChild._is_leaf = True
         middleChild._keys.extend([17])
-        
+
         rrightChild = BTreeNode()
         rrightChild._is_leaf = True
         rrightChild._keys.extend((20, 23))
@@ -96,42 +81,44 @@ class TestBTree:
         rightChild._children.extend((rleftChild, middleChild, rrightChild))
 
         # assert that tree is correctly constructed
-        tree.print()
-        
+        tree.print_inorder()
+
         out, err = capsys.readouterr()
-        
+
         # this is the current default behavior of BTree.print method and could
         # potentially change in the future
         expected_out = "8 9 10 11 15 16 17 18 20 23 \n"
 
         assert out == expected_out
-        
-        # ----------------------------------------------------------------------
-        # -------- ACT --------- #
-        
+
+        # -------------------------------------------------------------------- #
+        # ----------------------------- ACT ---------------------------------- #
+        # -------------------------------------------------------------------- #
+
         result = tree.search(input_value)
-        
-        # ----------------------------------------------------------------------
-        # -------- ASSERT --------- #
-        
+
+        # -------------------------------------------------------------------- #
+        # ---------------------------- ASSERT -------------------------------- #
+        # -------------------------------------------------------------------- #
+
         # for valid parameters
         if result is not None:
             node, i = result
             assert node.keys[i] == expected
-        
+
         # for invalid parameters (search for elements not belonging in tree)
         # make sure the input isn't in the tree
         else:
             assert re.search(f" {str(input_value)} ", expected_out) is None
-    
+
     def test_insert(self):
         tree = BTree(2)
-        
+
         elements = [8, 9, 10, 11, 15, 16, 17, 18, 20, 23]
-        
+
         for element in elements:
             tree.insert(element)
-            
+
         # now this tree should be like this:
         #
         #          11
@@ -140,30 +127,30 @@ class TestBTree:
         #   /  \    /   |    \
         #  8   10  15  17  20 23
         #
-        
+
         assert tree.root.keys[0] == 11
-        
+
         lchild = tree.root.children[0]
         rchild = tree.root.children[1]
-        
+
         assert lchild.keys[0] == 9
         assert rchild.keys[0] == 16
         assert rchild.keys[1] == 18
-        
+
         llchild = lchild.children[0]
         lrchild = lchild.children[1]
-        
+
         assert llchild.keys[0] == 8
         assert lrchild.keys[0] == 10
-        
+
         rlchild = rchild.children[0]
         rmchild = rchild.children[1]
         rrchild = rchild.children[2]
-        
+
         assert rlchild.keys[0] == 15
         assert rrchild.keys[0] == 20
         assert rrchild.keys[1] == 23
-        
+
         # important flags!!!
         assert tree.root.is_leaf == False
         assert lchild.is_leaf == False
