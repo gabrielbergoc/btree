@@ -165,11 +165,11 @@ class TestBTree:
         assert rrchild.keys[1] == 23
         
         # important flags!!!
-        assert tree.root.is_leaf() == False
-        assert lchild.is_leaf() == False
-        assert rchild.is_leaf() == False
-        assert llchild.is_leaf() == True
-        assert lrchild.is_leaf() == True
-        assert rlchild.is_leaf() == True
-        assert rmchild.is_leaf() == True
-        assert rrchild.is_leaf() == True
+        assert tree.root.is_leaf == False
+        assert lchild.is_leaf == False
+        assert rchild.is_leaf == False
+        assert llchild.is_leaf == True
+        assert lrchild.is_leaf == True
+        assert rlchild.is_leaf == True
+        assert rmchild.is_leaf == True
+        assert rrchild.is_leaf == True
