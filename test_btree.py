@@ -62,36 +62,37 @@ class TestBTree:
         tree = BTree(2, 11)
 
         leftChild = BTreeNode()
-        leftChild.keys.extend([9])
+        leftChild._keys.extend([9])
 
         rightChild = BTreeNode()
-        rightChild.keys.extend((16, 18))
+        rightChild._keys.extend((16, 18))
 
-        tree.root.children.extend((leftChild, rightChild))
+        tree._root._children.extend((leftChild, rightChild))
+        tree._root._is_leaf = False
 
         lleftChild = BTreeNode()
         lleftChild._is_leaf = True
-        lleftChild.keys.extend([8])
+        lleftChild._keys.extend([8])
 
         lrightChild = BTreeNode()
         lrightChild._is_leaf = True
-        lrightChild.keys.extend([10])
+        lrightChild._keys.extend([10])
 
-        leftChild.children.extend((lleftChild, lrightChild))
+        leftChild._children.extend((lleftChild, lrightChild))
 
         rleftChild = BTreeNode()
         rleftChild._is_leaf = True
-        rleftChild.keys.extend([15])
+        rleftChild._keys.extend([15])
 
         middleChild = BTreeNode()
         middleChild._is_leaf = True
-        middleChild.keys.extend([17])
+        middleChild._keys.extend([17])
         
         rrightChild = BTreeNode()
         rrightChild._is_leaf = True
-        rrightChild.keys.extend((20, 23))
+        rrightChild._keys.extend((20, 23))
 
-        rightChild.children.extend((rleftChild, middleChild, rrightChild))
+        rightChild._children.extend((rleftChild, middleChild, rrightChild))
 
         # assert that tree is correctly constructed
         tree.print()
