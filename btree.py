@@ -1,5 +1,4 @@
-import re
-from typing import Any, Callable
+from typing import Any
 
 from btreenode import BTreeNode
 
@@ -22,14 +21,15 @@ class BTree:
         else:
             self._root = BTreeNode(rootVal, is_leaf=True)
 
+        # variável privada para auxiliar o método print_tree
         self.__levels: list[list[object]] = []
 
     @property
     def t(self) -> int:
-        """Minimum degree of this tree (of each node).
+        """Minimum degree of this tree (of each node). Same as `min_children`.
 
         Returns:
-            int: Minimum degree.
+            int: Minimum degree of this tree.
         """
         return self._t
 
@@ -205,7 +205,11 @@ class BTree:
         self._root.keys_inorder(print, end=sep)
         print()
 
-    def print_tree(self) -> None:
+    def visualize_tree(self) -> None:
+        """Method to output the tree in a human-friendly format. It is
+        recommended to redirect the output to a text file if the tree is too
+        large.
+        """
         if self._root is None:
             print(None)
             return
@@ -233,6 +237,9 @@ class BTree:
         print(buffer)
 
     def __save_tree_info(self) -> None:
+        """Auxiliary method to save nodes' metadata to pretty-print tree in
+        `visualize_tree`
+        """
         if self._root is None:
             return
 
@@ -274,4 +281,4 @@ if __name__ == "__main__":
     for element in elements:
         tree.insert(element)
 
-    tree.print_tree()
+    tree.visualize_tree()
