@@ -1,4 +1,5 @@
-from typing import Any
+import re
+from typing import Any, Callable
 
 from btreenode import BTreeNode
 
@@ -20,6 +21,8 @@ class BTree:
             self._root = None
         else:
             self._root = BTreeNode(rootVal, is_leaf=True)
+
+        self.__levels: list[list[object]] = []
 
     @property
     def t(self) -> int:
@@ -161,7 +164,7 @@ class BTree:
         # a nova chave está cheio. se estiver, fazer split do filho
         if self.is_full(node.get_child(i)):
             self._split_child(node, i)
-            
+
             # corrigir índice de inserção
             if node.get_key(i) < key:
                 i += 1
@@ -184,7 +187,7 @@ class BTree:
         node.insert_key(child.get_key(self._t - 1), i)  # passar a chave mediana um nível acima
         new_child._keys = child._keys[self._t:]         # transferir chaves maiores para o novo nó
         child._keys = child._keys[:self._t - 1]         # manter as chaves menores no original
-        
+
         if not child.is_leaf:
             new_child._children = child._children[self._t:]     # transferir filhos maiores para o novo nó
             child._children = child._children[:self._t]         # manter filhos menores no original
@@ -199,5 +202,76 @@ class BTree:
             print(None)
             return
 
-        self._root.in_order(print, end=sep)
+        self._root.keys_inorder(print, end=sep)
         print()
+
+    def print_tree(self) -> None:
+        if self._root is None:
+            print(None)
+            return
+
+        self.__save_tree_info()
+
+        buffer = ""
+
+        for level in self.__levels:
+            prev_end = 0
+
+            for node in level:
+                total = node["end"] - node["pos"]
+                slack = total - len(str(node["keys"]))
+                pad = node["pos"] - prev_end
+
+                buffer += " " * (pad + slack // 2)
+                buffer += str(node["keys"])
+                buffer += " " * (slack - slack // 2)
+
+                prev_end += pad + total
+
+            buffer += "\n\n"
+
+        print(buffer)
+
+    def __save_tree_info(self) -> None:
+        if self._root is None:
+            return
+
+        self.__levels = []
+        self.__save_node_info(self._root)
+
+    def __save_node_info(self, node: BTreeNode, level: int = 0, i: int = 0) -> None:
+        if node is None:
+            raise ValueError("'node' parameter must not be None!!!")
+
+        if level > len(self.__levels):
+            raise ValueError("You shouldn't be accessing this level yet. Didn't you skip a level?")
+
+        if level == len(self.__levels):
+            self.__levels.append([])
+
+        this_level = self.__levels[level]
+        this_info = {"keys": str(node.keys), "pos": 0}
+
+        if len(this_level) > 0:
+            this_info.update({"pos": this_level[-1]["end"] + 2 if i == 0 else 1})
+
+        if node.is_leaf:
+            this_info.update({"end": this_info["pos"] + len(this_info["keys"])})
+        else:
+            for i, child in enumerate(node.children):
+                self.__save_node_info(child, level + 1, i)
+
+            this_info.update({"end": self.__levels[level + 1][-1]["end"]})
+
+        this_level.append(this_info)
+
+
+if __name__ == "__main__":
+    tree = BTree(2)
+
+    elements = [8, 9, 10, 11, 15, 16, 17, 18, 20, 23]
+
+    for element in elements:
+        tree.insert(element)
+
+    tree.print_tree()

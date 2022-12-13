@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from typing import Any, Callable
 
 
@@ -136,7 +137,7 @@ class BTreeNode:
         else:
             self.__children.append(child)
 
-    def in_order(self, f: Callable, *args: tuple[Any], **kwargs: Any) -> None:
+    def keys_inorder(self, f: Callable, *args: tuple[Any], **kwargs: Any) -> None:
         """Traverses the tree in order, applying f to the keys.
 
         Args:
@@ -146,11 +147,11 @@ class BTreeNode:
         """
         for i, value in enumerate(self.__keys):
             if not self.is_leaf:
-                self.__children[i].in_order(f, *args, **kwargs)
+                self.__children[i].keys_inorder(f, *args, **kwargs)
             f(value, *args, **kwargs)
 
         if not self.is_leaf:
-            self.__children[-1].in_order(f, *args, **kwargs)
+            self.__children[-1].keys_inorder(f, *args, **kwargs)
             
     def __str__(self):
         return f"{{ keys: {self.__keys}, children: {self.__children}, is_leaf: {self._is_leaf} }}"
